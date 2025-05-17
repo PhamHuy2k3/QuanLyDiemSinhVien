@@ -1,0 +1,34 @@
+{
+    "CS101": {
+        "ten_mh": "Lập Trình Hướng Đối Tượng",
+        "so_tin_chi": 3
+    },
+    "WD102": {
+        "ten_mh": "Thiết Kế Web",
+        "so_tin_chi": 3
+    },
+    "DB103": {
+        "ten_mh": "Cơ Sở Dữ Liệu",
+        "so_tin_chi": 3
+    },
+    "JS201": {
+        "ten_mh": "Java Spring",
+        "so_tin_chi": 4
+    },
+    "MA100": {
+        "ten_mh": "Toán Rời Rạc",
+        "so_tin_chi": 2
+    },
+    "CSLT": {
+        "ten_mh": "Cơ Sở Lập Trình",
+        "so_tin_chi": 3
+    },
+    "TCC1": {
+        "ten_mh": "Toán Cao Cấp",
+        "so_tin_chi": 4
+    },
+    "CTDL100": {
+        "ten_mh": "Cấu trúc dữ liệu",
+        "so_tin_chi": 6
+    }
+}

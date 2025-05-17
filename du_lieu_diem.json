@@ -1,0 +1,304 @@
+{
+    "501240322": {
+        "ho_ten": "Đỗ Hoàng Minh Châu",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 10.0,
+            "Toán Rời Rạc": 8.5
+        },
+        "ngay_cap_nhat": "2025-05-17 11:00:00"
+    },
+    "501240240": {
+        "ho_ten": "Nguyễn Hữu Đạt",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 9.4,
+            "Toán Rời Rạc": 7.0
+        },
+        "ngay_cap_nhat": "2025-05-17 11:00:00"
+    },
+    "501240245": {
+        "ho_ten": "Phạm Nguyễn Tiến Đạt",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 6.8,
+            "Toán Rời Rạc": 9.0
+        },
+        "ngay_cap_nhat": "2025-05-17 11:00:00"
+    },
+    "501240101": {
+        "ho_ten": "Nguyễn Minh Đức",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Toán Rời Rạc": 7.5
+        },
+        "ngay_cap_nhat": "2025-05-17 12:42:04"
+    },
+    "501240255": {
+        "ho_ten": "Trần Huỳnh Bảo Duy",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 6.4,
+            "Toán Rời Rạc": 8.0
+        },
+        "ngay_cap_nhat": "2025-05-17 11:00:00"
+    },
+    "501240275": {
+        "ho_ten": "Nguyễn Huy Hoàng",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 9.8,
+            "Toán Rời Rạc": 6.5
+        },
+        "ngay_cap_nhat": "2025-05-17 11:00:00"
+    },
+    "501240105": {
+        "ho_ten": "Hứa Thành Huy",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 9.7,
+            "Toán Rời Rạc": 9.5
+        },
+        "ngay_cap_nhat": "2025-05-17 11:00:00"
+    },
+    "501240237": {
+        "ho_ten": "Ngô Gia Huy",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 9.7,
+            "Toán Rời Rạc": 7.0
+        },
+        "ngay_cap_nhat": "2025-05-17 11:00:00"
+    },
+    "501240371": {
+        "ho_ten": "Phạm Quốc Huy",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 9.6,
+            "Toán Rời Rạc": 8.8,
+            "JS201": 10.0,
+            "TCC1": 6.0
+        },
+        "ngay_cap_nhat": "2025-05-17 12:30:09"
+    },
+    "501240304": {
+        "ho_ten": "Trần Nhật Quang Huy",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 9.5,
+            "Toán Rời Rạc": 6.0
+        },
+        "ngay_cap_nhat": "2025-05-17 11:00:00"
+    },
+    "501240280": {
+        "ho_ten": "Phan Ngọc Khải",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 9.7,
+            "Toán Rời Rạc": 9.2
+        },
+        "ngay_cap_nhat": "2025-05-17 11:00:00"
+    },
+    "501240267": {
+        "ho_ten": "Lê Tuấn Khang",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 9.4,
+            "Toán Rời Rạc": 7.8
+        },
+        "ngay_cap_nhat": "2025-05-17 11:00:00"
+    },
+    "501240311": {
+        "ho_ten": "Nguyễn Võ Duy Khang",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 9.1,
+            "Toán Rời Rạc": 8.2
+        },
+        "ngay_cap_nhat": "2025-05-17 11:00:00"
+    },
+    "501240329": {
+        "ho_ten": "Trịnh Anh Khiêm",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 9.8,
+            "Toán Rời Rạc": 6.8
+        },
+        "ngay_cap_nhat": "2025-05-17 11:00:00"
+    },
+    "501240178": {
+        "ho_ten": "Lê Đỗ Đăng Khôi",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 10.0,
+            "Toán Rời Rạc": 9.0
+        },
+        "ngay_cap_nhat": "2025-05-17 11:54:57"
+    },
+    "501240333": {
+        "ho_ten": "Nguyễn Gia Bảo Linh",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 9.5,
+            "Toán Rời Rạc": 7.2
+        },
+        "ngay_cap_nhat": "2025-05-17 11:00:00"
+    },
+    "501240339": {
+        "ho_ten": "Đỗ Nguyễn Thành Lộc",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 9.2,
+            "Toán Rời Rạc": 8.5
+        },
+        "ngay_cap_nhat": "2025-05-17 11:00:00"
+    },
+    "501240305": {
+        "ho_ten": "Bùi Minh Nhựt",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 9.3,
+            "Toán Rời Rạc": 6.2,
+            "WD102": 5.0
+        },
+        "ngay_cap_nhat": "2025-05-17 12:47:31"
+    },
+    "501240300": {
+        "ho_ten": "Phan Văn Tấn Quang",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 9.7,
+            "Toán Rời Rạc": 9.8
+        },
+        "ngay_cap_nhat": "2025-05-17 11:00:00"
+    },
+    "501240314": {
+        "ho_ten": "Đặng Tấn Tài",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 9.7,
+            "Toán Rời Rạc": 7.5
+        },
+        "ngay_cap_nhat": "2025-05-17 11:00:00"
+    },
+    "501240183": {
+        "ho_ten": "Nguyễn Ngọc Thành",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 9.7,
+            "Toán Rời Rạc": 8.0
+        },
+        "ngay_cap_nhat": "2025-05-17 11:00:00"
+    },
+    "501240239": {
+        "ho_ten": "Lê Văn Trọng",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 7.9,
+            "Toán Rời Rạc": 6.5
+        },
+        "ngay_cap_nhat": "2025-05-17 11:00:00"
+    },
+    "501240167": {
+        "ho_ten": "Bùi Công Vinh",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 0.0,
+            "Toán Rời Rạc": 7.0,
+            "TCC1": 0.1
+        },
+        "ngay_cap_nhat": "2025-05-17 12:36:30"
+    },
+    "501240000": {
+        "ho_ten": "abc",
+        "lop_hoc": "CD24CLC",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Toán Rời Rạc": 3.0
+        },
+        "ngay_cap_nhat": "2025-05-17 11:08:58"
+    },
+    "123456789": {
+        "ho_ten": "abcde",
+        "lop_hoc": "CD24CT5",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 5.0
+        },
+        "ngay_cap_nhat": "2025-05-17 11:21:36"
+    },
+    "234567890": {
+        "ho_ten": "Lê Đỗ Đăng Khôi",
+        "lop_hoc": "CD24CT5",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {
+            "Lập Trình Hướng Đối Tượng": 5.0
+        },
+        "ngay_cap_nhat": "2025-05-17 11:38:46"
+    },
+    "501231466": {
+        "ho_ten": "Nguyễn Minh Đức",
+        "lop_hoc": "CD23CT7",
+        "truong": "ITC",
+        "khoa": "Kinh tế",
+        "diem": {},
+        "ngay_cap_nhat": "2025-05-17 12:37:38"
+    },
+    "199999111": {
+        "ho_ten": "66666",
+        "lop_hoc": "CD24CT5",
+        "truong": "ITC",
+        "khoa": "IT",
+        "diem": {},
+        "ngay_cap_nhat": "2025-05-17 12:43:40"
+    }
+}
