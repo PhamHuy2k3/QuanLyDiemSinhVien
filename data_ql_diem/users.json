@@ -1,0 +1,14 @@
+{
+    "admin": {
+        "password_hash": "5c75706fee4964d0e1a1d41ca6618cd2:345ce4b7a039005fc5443fad55dc9a0f43b4bd2c63973c4c8e810234019d758b",
+        "role": "Admin"
+    },
+    "sinhvien": {
+        "password_hash": "ccf81ba8427ddbba6bcc986be905afbb:f502027ee00586d51ebd066a902a14ad43190d60d9dab21f07c2217ee432ec7d",
+        "role": "Student"
+    },
+    "sinhvien2": {
+        "password_hash": "fdcdf4e97d0adea9128e495f087bc5a5:745aa3d47e0b01f65d93ab42834aa50c39c6f9dd6601ff036c6f4ff814b1680d",
+        "role": "Student"
+    }
+}
