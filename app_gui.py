@@ -64,11 +64,6 @@ class QuanLyDiemGUI:
                 "sub_notebook_attr": "sub_notebook_grades",
                 "sub_tab_text": SUB_TAB_VIEW_GRADES
             },
-            SUB_TAB_EDIT_GRADES: {
-                "main_tab_text": MAIN_TAB_GRADES,
-                "sub_notebook_attr": "sub_notebook_grades",
-                "sub_tab_text": SUB_TAB_EDIT_GRADES
-            },
             SUB_TAB_QUICK_ENTER_GRADES: { # Thêm vào map điều hướng
                 "main_tab_text": MAIN_TAB_GRADES,
                 "sub_notebook_attr": "sub_notebook_grades",
@@ -295,7 +290,6 @@ class QuanLyDiemGUI:
         functions_menu.add_separator()
         functions_menu.add_command(label="Nhập Điểm", command=lambda: self._switch_to_tab_by_text(SUB_TAB_ENTER_GRADES))
         functions_menu.add_command(label="Xem/Xóa Điểm", command=lambda: self._switch_to_tab_by_text(SUB_TAB_VIEW_GRADES))
-        functions_menu.add_command(label="Sửa Điểm", command=lambda: self._switch_to_tab_by_text(SUB_TAB_EDIT_GRADES))
         functions_menu.add_command(label="Nhập Điểm Nhanh", command=lambda: self._switch_to_tab_by_text(SUB_TAB_QUICK_ENTER_GRADES))
         functions_menu.add_separator()
         functions_menu.add_command(label="Tìm kiếm Điểm", command=lambda: self._switch_to_tab_by_text(SUB_TAB_SEARCH))
@@ -389,7 +383,6 @@ class QuanLyDiemGUI:
                     "Thêm/Sửa/Xóa SV": "ACCESS_CRUD_STUDENTS_TAB", # Key quyền cho tab CRUD SV
                     "Nhập Điểm": "ACCESS_ENTER_GRADES_TAB",
                     "Xem/Xóa Điểm": "ACCESS_VIEW_GRADES_TAB",
-                    "Sửa Điểm": "ACCESS_EDIT_GRADES_TAB",
                     "Nhập Điểm Nhanh": "ACCESS_QUICK_ENTER_GRADES_TAB",
                     "Tìm kiếm Điểm": "ACCESS_SEARCH_TAB",
                     "Xếp Hạng Sinh viên": "ACCESS_RANKING_TAB",
@@ -420,8 +413,7 @@ class QuanLyDiemGUI:
         if hasattr(self, 'sub_notebook_grades'):
             self._configure_tab_visibility(self.sub_notebook_grades, 0, "ACCESS_ENTER_GRADES_TAB") # Nhập Điểm
             self._configure_tab_visibility(self.sub_notebook_grades, 1, "ACCESS_VIEW_GRADES_TAB")  # Xem/Xóa
-            self._configure_tab_visibility(self.sub_notebook_grades, 2, "ACCESS_EDIT_GRADES_TAB")  # Sửa Điểm
-            self._configure_tab_visibility(self.sub_notebook_grades, 3, "ACCESS_QUICK_ENTER_GRADES_TAB") # Nhập Nhanh
+            self._configure_tab_visibility(self.sub_notebook_grades, 2, "ACCESS_QUICK_ENTER_GRADES_TAB") # Nhập Nhanh (index is now 2)
 
         # Tab Phân tích & Báo cáo và các tab con
         self._configure_tab_visibility(self.notebook, self.main_tab_frames.get(MAIN_TAB_ANALYSIS), "ACCESS_ANALYSIS_TAB")
@@ -539,14 +531,9 @@ class QuanLyDiemGUI:
             self.update_status(f"Chuyển đến tab: {SUB_TAB_ENTER_GRADES}")
         elif selected_sub_tab_text == SUB_TAB_VIEW_GRADES:
             self._populate_xem_diem_filters()
-            if hasattr(self, 'combo_hoc_ky_xem_diem'): self._populate_hoc_ky_comboboxes((self.combo_hoc_ky_xem_diem, "Tất cả"))
-            self.hien_thi_bang_diem_sinh_vien() 
+            if hasattr(self, 'combo_hoc_ky_xem_diem'): self._populate_hoc_ky_comboboxes((self.combo_hoc_ky_xem_diem, "Tất cả")) # This one is fine for "Xem Điểm"
+            self.hien_thi_bang_diem_sinh_vien()
             self.update_status(f"Chuyển đến tab: {SUB_TAB_VIEW_GRADES}")
-        elif selected_sub_tab_text == SUB_TAB_EDIT_GRADES:
-            self._populate_mon_hoc_comboboxes() 
-            if hasattr(self, 'combo_hoc_ky_sua_diem'): self._populate_hoc_ky_comboboxes((self.combo_hoc_ky_sua_diem, "Chọn học kỳ"))
-            # Có thể cần populate thêm MSSV hoặc danh sách SV có điểm để sửa
-            self.update_status(f"Chuyển đến tab: {SUB_TAB_EDIT_GRADES}")
         elif selected_sub_tab_text == SUB_TAB_QUICK_ENTER_GRADES:
             if hasattr(self, 'quick_grade_entry_tab_manager') and self.quick_grade_entry_tab_manager:
                 self.quick_grade_entry_tab_manager.populate_filters()
@@ -582,8 +569,6 @@ class QuanLyDiemGUI:
             combos_to_populate.append((self.combo_hoc_ky_nhap_diem, "Chọn học kỳ"))
         if hasattr(self, 'combo_hoc_ky_xem_diem'):
             combos_to_populate.append((self.combo_hoc_ky_xem_diem, "Tất cả"))
-        if hasattr(self, 'combo_hoc_ky_sua_diem'):
-            combos_to_populate.append((self.combo_hoc_ky_sua_diem, "Chọn học kỳ"))
         if hasattr(self, 'combo_hoc_ky_tim_kiem'):
             combos_to_populate.append((self.combo_hoc_ky_tim_kiem, "Tất cả"))
         # Đối với tab Nhập Điểm Nhanh, việc populate combobox học kỳ sẽ do QuickGradeEntryTab tự quản lý
@@ -651,10 +636,6 @@ class QuanLyDiemGUI:
         sub_xem_xoa_diem_frame = ttk.Frame(self.sub_notebook_grades, padding="15")
         self.sub_notebook_grades.add(sub_xem_xoa_diem_frame, text=SUB_TAB_VIEW_GRADES)
         self.setup_xem_xoa_diem_tab(sub_xem_xoa_diem_frame)
-
-        sub_sua_diem_frame = ttk.Frame(self.sub_notebook_grades, padding="15")
-        self.sub_notebook_grades.add(sub_sua_diem_frame, text=SUB_TAB_EDIT_GRADES)
-        self.setup_sua_diem_tab(sub_sua_diem_frame)
 
         # Thêm tab Nhập Điểm Nhanh
         sub_nhap_diem_nhanh_frame = ttk.Frame(self.sub_notebook_grades, padding="15")
@@ -1487,12 +1468,17 @@ class QuanLyDiemGUI:
 
         self.tree_xem_diem.bind("<<TreeviewSelect>>", self._on_xem_diem_row_select)
 
-        btn_xoa_diem_chon = ttk.Button(main_frame_xem, text="Xóa Điểm Đã Chọn", command=self.xoa_diem_da_chon, style="Accent.TButton", width=20) # Sửa parent
-        btn_xoa_diem_chon.pack(pady=10) # Giảm pady
+        # Button "Xóa Điểm Đã Chọn" moved inside frame_tree_xem, below tree and hsb
+        self.btn_xoa_diem_chon = ttk.Button(frame_tree_xem, # Parent is now frame_tree_xem
+                                            text="Xóa Điểm Đã Chọn",
+                                            command=self.xoa_diem_da_chon,
+                                            style="Accent.TButton",
+                                            width=20)
+        # Pack it at the bottom of frame_tree_xem, after the horizontal scrollbar
+        self.btn_xoa_diem_chon.pack(side=tk.BOTTOM, pady=(10,5)) # pady=(top_padding, bottom_padding)
 
-        self._populate_xem_diem_filters() 
+        self._populate_xem_diem_filters()
         self.hien_thi_bang_diem_sinh_vien()
-
     def _populate_xem_diem_filters(self):
         if not hasattr(self, 'combo_xem_diem_filter_lop'): return
 
@@ -1622,184 +1608,6 @@ class QuanLyDiemGUI:
         else:
             self.update_status("Hủy xóa điểm.")    
     # Các phương thức liên quan đến "Nhập Điểm Nhanh" đã được chuyển sang QuickGradeEntryTab
-
-    def setup_sua_diem_tab(self, parent_frame):
-        content_frame = ttk.Frame(parent_frame)
-        content_frame.pack(expand=True, fill=tk.BOTH, padx=10, pady=10) # Cho phép co giãn
-
-        # Frame Nhập liệu
-        input_frame = ttk.LabelFrame(content_frame, text="Thông tin Điểm cần sửa")
-        input_frame.pack(fill=tk.X, padx=5, pady=10) # Thêm padx
-
-        ttk.Label(input_frame, text="Mã số sinh viên:").grid(row=0, column=0, padx=5, pady=8, sticky=tk.W)
-        self.entry_ma_sv_sua = ttk.Entry(input_frame, width=30) # Giảm width
-        self.entry_ma_sv_sua.grid(row=0, column=1, padx=5, pady=8, sticky=tk.EW)
-        # Thêm nút tìm SV để load thông tin điểm của SV đó
-        self.btn_tim_sv_sua_diem = ttk.Button(input_frame, text="Tìm SV & Điểm", command=self._tim_sv_va_diem_de_sua)
-        self.btn_tim_sv_sua_diem.grid(row=0, column=2, padx=5, pady=8)
-
-
-        ttk.Label(input_frame, text="Chọn Học kỳ cần sửa:").grid(row=1, column=0, padx=5, pady=8, sticky=tk.W)
-        self.combo_hoc_ky_sua_diem = ttk.Combobox(input_frame, width=28, state="readonly") # Giảm width
-        self.combo_hoc_ky_sua_diem.grid(row=1, column=1, padx=5, pady=8, sticky=tk.EW)
-        self.combo_hoc_ky_sua_diem.bind("<<ComboboxSelected>>", self._on_hoc_ky_sua_diem_selected)
-
-
-        ttk.Label(input_frame, text="Chọn Môn học cần sửa:").grid(row=2, column=0, padx=5, pady=8, sticky=tk.W)
-        self.combo_mon_hoc_sua = ttk.Combobox(input_frame, width=28, state="readonly") # Giảm width
-        self.combo_mon_hoc_sua.grid(row=2, column=1, padx=5, pady=8, sticky=tk.EW)
-        self.combo_mon_hoc_sua.bind("<<ComboboxSelected>>", self._on_mon_hoc_sua_diem_selected)
-
-
-        ttk.Label(input_frame, text="Điểm hiện tại:").grid(row=3, column=0, padx=5, pady=8, sticky=tk.W)
-        self.lbl_diem_hien_tai_sua = ttk.Label(input_frame, text="---", width=30) # Label để hiển thị điểm cũ
-        self.lbl_diem_hien_tai_sua.grid(row=3, column=1, padx=5, pady=8, sticky=tk.EW)
-
-
-        ttk.Label(input_frame, text="Điểm mới (0-10):").grid(row=4, column=0, padx=5, pady=8, sticky=tk.W)
-        self.entry_diem_moi_sua = ttk.Entry(input_frame, width=30) # Giảm width
-        self.entry_diem_moi_sua.grid(row=4, column=1, padx=5, pady=8, sticky=tk.EW)
-
-        input_frame.columnconfigure(1, weight=1) # Cho phép combobox/entry co giãn
-
-        btn_sua_diem_submit = ttk.Button(content_frame, text="Cập Nhật Điểm", command=self.sua_diem_submit, style="Accent.TButton", width=20)
-        btn_sua_diem_submit.pack(pady=20)
-
-        self._clear_sua_diem_form() # Khởi tạo form
-
-    def _clear_sua_diem_form(self, clear_ma_sv=True):
-        if clear_ma_sv and hasattr(self, 'entry_ma_sv_sua'):
-            self.entry_ma_sv_sua.delete(0, tk.END)
-        if hasattr(self, 'combo_hoc_ky_sua_diem'):
-            self.combo_hoc_ky_sua_diem['values'] = ["Chọn học kỳ"]
-            self.combo_hoc_ky_sua_diem.set("Chọn học kỳ")
-        if hasattr(self, 'combo_mon_hoc_sua'):
-            self.combo_mon_hoc_sua['values'] = [""]
-            self.combo_mon_hoc_sua.set("")
-        if hasattr(self, 'lbl_diem_hien_tai_sua'):
-            self.lbl_diem_hien_tai_sua.config(text="---")
-        if hasattr(self, 'entry_diem_moi_sua'):
-            self.entry_diem_moi_sua.delete(0, tk.END)
-        if clear_ma_sv and hasattr(self, 'entry_ma_sv_sua'):
-            self.entry_ma_sv_sua.focus()
-        self.update_status("Form sửa điểm đã làm mới.")
-
-    def _tim_sv_va_diem_de_sua(self):
-        ma_sv = self.entry_ma_sv_sua.get().strip()
-        if not ma_sv:
-            messagebox.showwarning("Thiếu thông tin", "Vui lòng nhập Mã số sinh viên.")
-            self._clear_sua_diem_form(clear_ma_sv=False) # Chỉ clear phần điểm
-            return
-
-        sv_obj = self.ql_diem.danh_sach_sinh_vien.get(ma_sv)
-        if not sv_obj:
-            messagebox.showerror("Lỗi", f"Không tìm thấy sinh viên với mã: {ma_sv}")
-            self._clear_sua_diem_form(clear_ma_sv=False)
-            return
-        
-        if not sv_obj.diem:
-            messagebox.showinfo("Thông tin", f"Sinh viên {sv_obj.ho_ten} ({ma_sv}) chưa có điểm nào.")
-            self._clear_sua_diem_form(clear_ma_sv=False)
-            return
-
-        hoc_ky_co_diem = sorted(list(sv_obj.diem.keys()))
-        self.combo_hoc_ky_sua_diem['values'] = ["Chọn học kỳ"] + hoc_ky_co_diem
-        self.combo_hoc_ky_sua_diem.set("Chọn học kỳ")
-        self.combo_mon_hoc_sua['values'] = [""]
-        self.combo_mon_hoc_sua.set("")
-        self.lbl_diem_hien_tai_sua.config(text="---")
-        self.entry_diem_moi_sua.delete(0, tk.END)
-        self.update_status(f"Đã tìm thấy SV: {sv_obj.ho_ten}. Vui lòng chọn học kỳ và môn học.")
-
-    def _on_hoc_ky_sua_diem_selected(self, event=None):
-        ma_sv = self.entry_ma_sv_sua.get().strip()
-        selected_hoc_ky = self.combo_hoc_ky_sua_diem.get()
-        self.combo_mon_hoc_sua['values'] = [""]
-        self.combo_mon_hoc_sua.set("")
-        self.lbl_diem_hien_tai_sua.config(text="---")
-        self.entry_diem_moi_sua.delete(0, tk.END)
-
-        if not ma_sv or selected_hoc_ky == "Chọn học kỳ":
-            return
-
-        sv_obj = self.ql_diem.danh_sach_sinh_vien.get(ma_sv)
-        if sv_obj and sv_obj.diem and selected_hoc_ky in sv_obj.diem:
-            mon_hoc_trong_ky = sv_obj.diem[selected_hoc_ky] # dict {ma_mh: diem}
-            
-            # Tạo danh sách hiển thị cho combobox môn học
-            mon_hoc_display_list_sua = []
-            # self.mon_hoc_display_to_code_map đã được populate ở _populate_mon_hoc_comboboxes
-            # Chúng ta cần đảo ngược map hoặc tìm trong danh sách môn học gốc
-            all_mh_objects = self.ql_diem.lay_tat_ca_mon_hoc() # list of dicts
-            
-            current_mh_display_to_code_map_sua = {}
-            for ma_mh_trong_ky in mon_hoc_trong_ky.keys():
-                for mh_dict in all_mh_objects:
-                    if mh_dict['ma_mh'] == ma_mh_trong_ky:
-                        display_text = f"{mh_dict['ten_mh']} ({mh_dict['ma_mh']})"
-                        mon_hoc_display_list_sua.append(display_text)
-                        current_mh_display_to_code_map_sua[display_text] = mh_dict['ma_mh']
-                        break
-            
-            self.combo_mon_hoc_sua['values'] = [""] + sorted(mon_hoc_display_list_sua)
-            # Lưu map tạm thời này nếu cần, hoặc dựa vào map toàn cục self.mon_hoc_display_to_code_map
-            # khi submit, vì self.mon_hoc_display_to_code_map chứa tất cả môn học.
-        else:
-            self.combo_mon_hoc_sua['values'] = [""]
-
-    def _on_mon_hoc_sua_diem_selected(self, event=None):
-        ma_sv = self.entry_ma_sv_sua.get().strip()
-        selected_hoc_ky = self.combo_hoc_ky_sua_diem.get()
-        selected_mon_hoc_display = self.combo_mon_hoc_sua.get()
-        self.lbl_diem_hien_tai_sua.config(text="---")
-        self.entry_diem_moi_sua.delete(0, tk.END)
-
-        if not ma_sv or selected_hoc_ky == "Chọn học kỳ" or not selected_mon_hoc_display:
-            return
-
-        # Lấy mã môn học từ display text (sử dụng map toàn cục)
-        ma_mon_hoc = self.mon_hoc_display_to_code_map.get(selected_mon_hoc_display)
-        if not ma_mon_hoc: return
-
-        sv_obj = self.ql_diem.danh_sach_sinh_vien.get(ma_sv)
-        if sv_obj and sv_obj.diem and \
-           selected_hoc_ky in sv_obj.diem and \
-           ma_mon_hoc in sv_obj.diem[selected_hoc_ky]:
-            diem_hien_tai = sv_obj.diem[selected_hoc_ky][ma_mon_hoc]
-            self.lbl_diem_hien_tai_sua.config(text=f"{diem_hien_tai:.1f}")
-            self.entry_diem_moi_sua.focus()
-
-
-    def sua_diem_submit(self):
-        ma_sv = self.entry_ma_sv_sua.get().strip()
-        selected_mon_hoc_display = self.combo_mon_hoc_sua.get()
-        selected_hoc_ky_sua = self.combo_hoc_ky_sua_diem.get()
-        diem_moi_str = self.entry_diem_moi_sua.get().strip()
-
-        if not all([ma_sv, selected_mon_hoc_display, diem_moi_str, selected_hoc_ky_sua]) or \
-           selected_hoc_ky_sua == "Chọn học kỳ" or not selected_mon_hoc_display:
-            messagebox.showwarning("Thiếu thông tin", "Vui lòng nhập đầy đủ Mã SV, chọn Học kỳ, Môn học và nhập Điểm mới.", parent=self.master); return
-        
-        ma_mon_hoc = self.mon_hoc_display_to_code_map.get(selected_mon_hoc_display)
-        if not ma_mon_hoc: messagebox.showerror("Lỗi", "Môn học không hợp lệ.", parent=self.master); return
-        
-        if not self._check_ui_permission_before_action("SUBMIT_EDIT_GRADES", "sửa điểm", silent=False): return
-        
-        try:
-            diem_moi = float(diem_moi_str)
-            success, message = self.ql_diem.sua_diem(ma_sv, ma_mon_hoc, diem_moi, selected_hoc_ky_sua)
-            if success:
-                ten_mon_display = selected_mon_hoc_display.split(' (')[0]
-                messagebox.showinfo("Thành công", f"Đã cập nhật điểm môn {ten_mon_display} cho SV {ma_sv} thành {diem_moi:.1f} trong học kỳ {selected_hoc_ky_sua}.")
-                self.update_status(f"Đã cập nhật điểm: SV {ma_sv} - Môn {ma_mon_hoc} - HK {selected_hoc_ky_sua} - Điểm {diem_moi:.1f}")
-                self._clear_sua_diem_form() # Xóa toàn bộ form sau khi thành công
-                self._populate_all_combobox_filters() # Cập nhật lại các bộ lọc
-            else: 
-                messagebox.showerror("Lỗi Sửa Điểm", message, parent=self.master); 
-                self.update_status(f"Sửa điểm thất bại: {message}")
-        except ValueError: 
-            messagebox.showwarning("Lỗi Định Dạng", "Điểm mới không phải là số hợp lệ.", parent=self.master)
-            self.update_status("Sửa điểm thất bại: Điểm mới không phải số.") # Thêm parent
 
     def setup_tim_kiem_tab(self, parent_frame):
         frame_options = ttk.LabelFrame(parent_frame, text="Tiêu chí tìm kiếm") 

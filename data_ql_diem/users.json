@@ -4,11 +4,19 @@
         "role": "Admin"
     },
     "sinhvien": {
-        "password_hash": "ccf81ba8427ddbba6bcc986be905afbb:f502027ee00586d51ebd066a902a14ad43190d60d9dab21f07c2217ee432ec7d",
+        "password_hash": "5708d6a3779bdfc19a0b080f5dcfd1e6:46b16f5ad0c3892ce2b97cae3b427d701efdda09ee711034ef982ecdc99f5561",
         "role": "Student"
     },
     "sinhvien2": {
         "password_hash": "fdcdf4e97d0adea9128e495f087bc5a5:745aa3d47e0b01f65d93ab42834aa50c39c6f9dd6601ff036c6f4ff814b1680d",
+        "role": "Student"
+    },
+    "giaovien": {
+        "password_hash": "57a22152786b2bef1d047b6159081385:522fd25554b86b23d90065a86d322e8a1757e4fb7e15404bac2be4d4e13f1251",
+        "role": "Teacher"
+    },
+    "Bui Minh Nhut": {
+        "password_hash": "869f49ad7188b32bcb4523e732db3fd8:af69d556cf23e0ae4da6d22e33cf5b3447182ad44ec2a88cf31c3deaba34a128",
         "role": "Student"
     }
 }

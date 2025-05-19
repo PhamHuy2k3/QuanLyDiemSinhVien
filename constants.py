@@ -10,7 +10,6 @@ SUB_TAB_MANAGE_STUDENTS = "Danh sách Sinh viên" # Tên mới cho tab quản l�
 SUB_TAB_MANAGE_SUBJECTS = "Quản lý Môn học"
 SUB_TAB_ENTER_GRADES = "Nhập Điểm"
 SUB_TAB_VIEW_GRADES = "Xem & Xóa Điểm"
-SUB_TAB_EDIT_GRADES = "Sửa Điểm"
 SUB_TAB_QUICK_ENTER_GRADES = "Nhập Điểm Nhanh"
 SUB_TAB_SEARCH = "Tìm kiếm"
 SUB_TAB_RANKING = "Xếp Hạng"
