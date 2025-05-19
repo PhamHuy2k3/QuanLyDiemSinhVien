@@ -31,7 +31,6 @@ class QuanLyDiemGUI:
         self.login_window = None
 
         # Tên tab được import từ constants.py
-
         # SỬA LỖI: Khởi tạo tab_navigation_map
         self.tab_navigation_map = {
             SUB_TAB_MANAGE_STUDENTS: { # Đã sửa từ SUB_TAB_ADD_STUDENT

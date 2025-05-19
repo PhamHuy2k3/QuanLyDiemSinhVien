@@ -54,7 +54,6 @@ class QuanLyDiem:
         except Exception as e:
             print(f"Lỗi không xác định khi tải dữ liệu môn học: {e}")
 
-
     def save_data_mh(self):
         try:
             with open(MH_FILE, 'w', newline='', encoding='utf-8') as f:
