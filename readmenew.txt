@@ -1,4 +1,6 @@
 
+# Student Grade Management System
+
 ## Getting started
 
 - A simple, user-friendly system that helps educational institutions manage student grades. 
