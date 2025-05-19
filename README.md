@@ -1,4 +1,3 @@
-# Student Grade Management System
 
 ## Getting started
 
