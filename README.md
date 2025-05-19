@@ -1,4 +1,4 @@
-
+# Warning: This is just a test applications based on Tkinter, do not use this as trading / selling purposes.
 ## Getting started
 
 - A simple, user-friendly system that helps educational institutions manage student grades. 
