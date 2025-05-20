@@ -17,3 +17,6 @@ SUB_TAB_REPORT = "Báo cáo Lớp"
 SUB_TAB_CRUD_STUDENTS = "Thêm/Sửa/Xóa SV" # Thêm định nghĩa này
 
 SUB_TAB_USER_MANAGEMENT = "Quản lý Người dùng" # Sub-tab mới
+# constants.py
+# ... (các hằng số khác đã có)
+SUB_TAB_CHARTS = "Biểu đồ Phân tích"

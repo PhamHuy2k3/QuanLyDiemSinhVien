@@ -4,7 +4,7 @@
         "role": "Admin"
     },
     "sinhvien": {
-        "password_hash": "5708d6a3779bdfc19a0b080f5dcfd1e6:46b16f5ad0c3892ce2b97cae3b427d701efdda09ee711034ef982ecdc99f5561",
+        "password_hash": "a36a66eddbd81d5650cbf8096fcf1270:b666053aa0fcab589c8f5396954fb32dd1a37dd95a504065cae55601255573f3",
         "role": "Student"
     },
     "sinhvien2": {

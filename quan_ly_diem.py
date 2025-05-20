@@ -490,7 +490,68 @@ class QuanLyDiem:
             'diem_trung_binh_lop_tich_luy': diem_trung_binh_lop_tich_luy,
             'danh_sach_sinh_vien': danh_sach_sv_bao_cao # Sẽ là list rỗng nếu SV trong lớp ko có điểm
         }
+# --- Hỗ trợ Biểu đồ ---
+    def _phan_loai_diem(self, diem_so):
+        """Phân loại điểm số thành các mức: Giỏi, Khá, TB, Yếu, Kém."""
+        if not isinstance(diem_so, (int, float)):
+            return "Không xác định" # Hoặc xử lý lỗi khác
+        if diem_so >= 8.5: return "Giỏi (8.5-10)"
+        if diem_so >= 7.0: return "Khá (7.0-8.4)"
+        if diem_so >= 5.5: return "TB (5.5-6.9)"
+        if diem_so >= 4.0: return "Yếu (4.0-5.4)"
+        return "Kém (<4.0)"
 
+    def get_grade_distribution_data(self, lop_hoc_filter, ma_mh_filter):
+        """
+        Lấy dữ liệu phân phối điểm của một môn học trong một lớp.
+        Trả về: dict {'Giỏi (8.5-10)': count, ...}
+        """
+        distribution = {"Giỏi (8.5-10)": 0, "Khá (7.0-8.4)": 0, "TB (5.5-6.9)": 0, "Yếu (4.0-5.4)": 0, "Kém (<4.0)": 0}
+        if not lop_hoc_filter or not ma_mh_filter:
+            return distribution
+
+        mon_hoc = self.danh_sach_mon_hoc.get(ma_mh_filter.strip().upper())
+        if not mon_hoc:
+            return distribution
+
+        for sv in self.danh_sach_sinh_vien.values():
+            if sv.lop_hoc and sv.lop_hoc.lower() == lop_hoc_filter.lower():
+                # Xem xét tất cả các học kỳ để tìm điểm môn này của SV
+                # Nếu muốn chỉ 1 học kỳ cụ thể, cần thêm hoc_ky_filter
+                for hoc_ky_data in sv.diem.values():
+                    if ma_mh_filter.strip().upper() in hoc_ky_data:
+                        diem_so = hoc_ky_data[ma_mh_filter.strip().upper()]
+                        loai = self._phan_loai_diem(diem_so)
+                        if loai != "Không xác định":
+                            distribution[loai] += 1
+                        break # Giả sử chỉ lấy điểm lần đầu/duy nhất của môn đó cho SV này
+        return distribution
+
+    def get_student_gpa_trend_data(self, ma_sv_filter):
+        """
+        Lấy dữ liệu GPA của sinh viên qua các học kỳ.
+        Trả về: dict {hoc_ky: gpa} được sắp xếp theo học kỳ.
+        """
+        sv = self.danh_sach_sinh_vien.get(ma_sv_filter.strip())
+        if not sv:
+            return {}
+
+        gpa_trend = {}
+        hoc_ky_co_diem = sorted(list(sv.diem.keys())) # Sắp xếp để có thứ tự thời gian
+
+        for hoc_ky in hoc_ky_co_diem:
+            gpa_ky, _ = sv.tinh_gpa(self.danh_sach_mon_hoc, hoc_ky_filter=hoc_ky)
+            gpa_trend[hoc_ky] = gpa_ky
+        return gpa_trend
+
+    def get_student_distribution_by_faculty_or_class_data(self, group_by='khoa'):
+        """Lấy dữ liệu phân phối sinh viên theo khoa hoặc lớp."""
+        distribution = {}
+        for sv in self.danh_sach_sinh_vien.values():
+            key_data = getattr(sv, group_by, None) # Lấy sv.khoa hoặc sv.lop_hoc
+            if key_data:
+                distribution[key_data] = distribution.get(key_data, 0) + 1
+        return distribution
 # Để chạy thử nghiệm độc lập (ví dụ)
 if __name__ == '__main__':
     ql = QuanLyDiem()

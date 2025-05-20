@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import csv
+import matplotlib.pyplot as plt
 from ttkthemes import ThemedTk
 from quan_ly_diem import QuanLyDiem
 from constants import * # Import các hằng số
@@ -8,7 +9,8 @@ from user_manager import UserManager
 from user_config import PERMISSIONS # Import các hằng số quyền
 from tabs.user_management_tab import UserManagementTab
 from tabs.quick_grade_entry_tab import QuickGradeEntryTab
-
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 # Global flag to prevent multiple main executions
 _MAIN_HAS_RUN = False
 
@@ -23,7 +25,9 @@ class QuanLyDiemGUI:
         # self.qen_entry_widgets = {} # Đã chuyển sang QuickGradeEntryTab
         # self.qen_active_entry_item_id = None # Đã chuyển sang QuickGradeEntryTab
         self.xem_diem_selected_sv_ma_mh_to_delete = None # (ma_sv, ma_mh, hoc_ky) để xóa
-
+        self.chart_canvas_widget = None # Để lưu trữ widget canvas của biểu đồ
+        self.chart_toolbar = None # Để lưu trữ toolbar của biểu đồ
+        self.chart_figure = None # Để lưu trữ đối tượng Figure
         self.user_manager = UserManager()
         self.current_user = None
         self.current_user_role = None
@@ -82,6 +86,11 @@ class QuanLyDiemGUI:
                 "main_tab_text": MAIN_TAB_ANALYSIS,
                 "sub_notebook_attr": "sub_notebook_analysis",
                 "sub_tab_text": SUB_TAB_REPORT
+            },
+            SUB_TAB_CHARTS: { # Thêm vào map điều hướng
+                "main_tab_text": MAIN_TAB_ANALYSIS,
+                "sub_notebook_attr": "sub_notebook_analysis",
+                "sub_tab_text": SUB_TAB_CHARTS
             }
         }
 
@@ -294,7 +303,8 @@ class QuanLyDiemGUI:
         functions_menu.add_command(label="Tìm kiếm Điểm", command=lambda: self._switch_to_tab_by_text(SUB_TAB_SEARCH))
         functions_menu.add_command(label="Xếp Hạng Sinh viên", command=lambda: self._switch_to_tab_by_text(SUB_TAB_RANKING))
         functions_menu.add_command(label="Báo cáo Lớp", command=lambda: self._switch_to_tab_by_text(SUB_TAB_REPORT))
-        
+        functions_menu.add_separator() 
+        functions_menu.add_command(label="Biểu đồ Phân tích", command=lambda: self._switch_to_tab_by_text(SUB_TAB_CHARTS))
         # Định nghĩa admin_menu_item_text ở đây để cả setup_menubar và _apply_role_permissions có thể dùng
         # một cách nhất quán. Hoặc, nếu _apply_role_permissions không cần truy cập biến này trực tiếp
         # mà chỉ cần chuỗi ký tự, thì việc định nghĩa ở đây là đủ cho setup_menubar.
@@ -386,7 +396,8 @@ class QuanLyDiemGUI:
                     "Tìm kiếm Điểm": "ACCESS_SEARCH_TAB",
                     "Xếp Hạng Sinh viên": "ACCESS_RANKING_TAB",
                     "Báo cáo Lớp": "ACCESS_REPORT_TAB",
-                    "Quản lý Người dùng": "ACCESS_USER_MANAGEMENT_TAB", # Sử dụng trực tiếp chuỗi ký tự ở đây
+                    "Quản lý Người dùng": "ACCESS_USER_MANAGEMENT_TAB",
+                    "Biểu đồ Phân tích": "ACCESS_CHARTS_TAB", # Sử dụng trực tiếp chuỗi ký tự ở đây
                 }
                 for i in range(functions_menu.index(tk.END) + 1):
                     try:
@@ -419,7 +430,8 @@ class QuanLyDiemGUI:
         if hasattr(self, 'sub_notebook_analysis'):
             self._configure_tab_visibility(self.sub_notebook_analysis, 0, "ACCESS_SEARCH_TAB")    # Tìm kiếm
             self._configure_tab_visibility(self.sub_notebook_analysis, 1, "ACCESS_RANKING_TAB")   # Xếp hạng
-            self._configure_tab_visibility(self.sub_notebook_analysis, 2, "ACCESS_REPORT_TAB")     # Báo cáo
+            self._configure_tab_visibility(self.sub_notebook_analysis, 2, "ACCESS_REPORT_TAB") 
+            self._configure_tab_visibility(self.sub_notebook_analysis, 3, "ACCESS_CHARTS_TAB")    # Báo cáo
         
     def _export_treeview_to_csv(self, treeview_widget, default_filename="export.csv"):
         if not treeview_widget.get_children():
@@ -556,7 +568,10 @@ class QuanLyDiemGUI:
         elif selected_sub_tab_text == SUB_TAB_REPORT:
             self._populate_bao_cao_lop_filter() # Cập nhật combobox lớp khi chuyển sang tab này
             self.update_status(f"Chuyển đến tab: {SUB_TAB_REPORT}")
-            pass
+        elif selected_sub_tab_text == SUB_TAB_CHARTS:
+            self._populate_chart_filters() # Populate filter cho tab biểu đồ
+            self.update_status(f"Chuyển đến tab: {SUB_TAB_CHARTS}")
+            self._clear_chart_area() # Xóa biểu đồ cũ khi chuyển tab
     def on_sub_tab_admin_change(self, event):
         # Hiện tại chỉ có 1 tab con là UserManagement, nó tự xử lý khi được chọn
         # thông qua phương thức on_tab_selected() của nó.
@@ -664,7 +679,9 @@ class QuanLyDiemGUI:
         sub_bao_cao_frame = ttk.Frame(self.sub_notebook_analysis, padding="15")
         self.sub_notebook_analysis.add(sub_bao_cao_frame, text=SUB_TAB_REPORT)
         self.setup_bao_cao_tab(sub_bao_cao_frame)
-        
+        sub_charts_frame = ttk.Frame(self.sub_notebook_analysis, padding="15")
+        self.sub_notebook_analysis.add(sub_charts_frame, text=SUB_TAB_CHARTS)
+        self.setup_charts_tab(sub_charts_frame)
         self.sub_notebook_analysis.bind("<<NotebookTabChanged>>", self.on_sub_tab_analysis_change)
     def setup_admin_tab(self):
         main_frame = ttk.Frame(self.notebook, padding="5")
@@ -2031,6 +2048,190 @@ class QuanLyDiemGUI:
         except Exception as e: 
             messagebox.showerror("Lỗi Lưu File", f"Không thể lưu file báo cáo: {e}", parent=self.master)
             self.update_status(f"Lỗi khi lưu báo cáo: {e}")
+    # --- Tab Biểu đồ ---
+    def _clear_chart_area(self):
+        """Xóa biểu đồ hiện tại khỏi canvas."""
+        # 1. Detach the Matplotlib FigureCanvas's notion of the toolbar
+        #    to prevent clf() from trying to update a (soon to be) destroyed Tk widget.
+        if self.chart_figure and self.chart_figure.canvas and \
+           hasattr(self.chart_figure.canvas, 'toolbar') and \
+           self.chart_figure.canvas.toolbar == self.chart_toolbar: # Ensure it's the one we manage
+            self.chart_figure.canvas.toolbar = None
+
+        # 2. Clear the Matplotlib Figure's artists.
+        #    This needs to happen while the Figure's canvas object and its
+        #    underlying Tk canvas widget are still valid.
+        if self.chart_figure:
+            self.chart_figure.clf() # Clear the figure
+
+        # 3. Now, destroy the Tkinter widgets.
+        if self.chart_toolbar:
+            self.chart_toolbar.destroy()
+            self.chart_toolbar = None
+
+        if self.chart_canvas_widget:
+            self.chart_canvas_widget.get_tk_widget().destroy()
+            self.chart_canvas_widget = None
+
+    def setup_charts_tab(self, parent_frame):
+        control_frame = ttk.Frame(parent_frame)
+        control_frame.pack(fill=tk.X, pady=10, padx=10)
+
+        ttk.Label(control_frame, text="Chọn loại biểu đồ:").grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
+        self.combo_chart_type = ttk.Combobox(control_frame, state="readonly", width=30)
+        self.combo_chart_type['values'] = [
+            "Phân phối điểm môn học theo lớp",
+            "Xu hướng GPA của sinh viên",
+            "Tỷ lệ sinh viên theo Khoa",
+            "Tỷ lệ sinh viên theo Lớp"
+        ]
+        self.combo_chart_type.grid(row=0, column=1, padx=5, pady=5, sticky=tk.EW)
+        self.combo_chart_type.bind("<<ComboboxSelected>>", self._on_chart_type_selected)
+        
+
+        self.filters_frame_charts = ttk.Frame(control_frame)
+        self.filters_frame_charts.grid(row=1, column=0, columnspan=3, sticky=tk.EW, pady=(10,0))
+
+        self.filter_grade_dist_frame = ttk.Frame(self.filters_frame_charts)
+        ttk.Label(self.filter_grade_dist_frame, text="Chọn Lớp:").grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
+        self.combo_chart_lop_hoc = ttk.Combobox(self.filter_grade_dist_frame, state="readonly", width=25)
+        self.combo_chart_lop_hoc.grid(row=0, column=1, padx=5, pady=5, sticky=tk.EW)
+        ttk.Label(self.filter_grade_dist_frame, text="Chọn Môn học:").grid(row=0, column=2, padx=5, pady=5, sticky=tk.W)
+        self.combo_chart_mon_hoc_dist = ttk.Combobox(self.filter_grade_dist_frame, state="readonly", width=30)
+        self.combo_chart_mon_hoc_dist.grid(row=0, column=3, padx=5, pady=5, sticky=tk.EW)
+        self.filter_grade_dist_frame.grid_columnconfigure(1, weight=1)
+        self.filter_grade_dist_frame.grid_columnconfigure(3, weight=1)
+
+        self.filter_gpa_trend_frame = ttk.Frame(self.filters_frame_charts)
+        ttk.Label(self.filter_gpa_trend_frame, text="Chọn Sinh viên:").grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
+        self.combo_chart_sv_gpa = ttk.Combobox(self.filter_gpa_trend_frame, state="readonly", width=40)
+        self.combo_chart_sv_gpa.grid(row=0, column=1, padx=5, pady=5, sticky=tk.EW)
+        self.filter_gpa_trend_frame.grid_columnconfigure(1, weight=1)
+
+        self.filter_student_dist_frame = ttk.Frame(self.filters_frame_charts) # Hiện tại không có filter con
+
+        btn_draw_chart = ttk.Button(control_frame, text="Vẽ Biểu đồ", command=self._draw_selected_chart, style="Accent.TButton")
+        btn_draw_chart.grid(row=0, column=2, padx=10, pady=5, sticky=tk.E)
+        control_frame.grid_columnconfigure(1, weight=1)
+
+        self.chart_display_frame = ttk.LabelFrame(parent_frame, text="Biểu đồ")
+        self.chart_display_frame.pack(fill=tk.BOTH, expand=True, pady=10, padx=10)
+        
+        if self.combo_chart_type['values']: self.combo_chart_type.current(0) # Chọn mặc định nếu có giá trị
+        self._on_chart_type_selected() # This will call _clear_chart_area (the correct one now)
+        self._populate_chart_filters() # Populate filters after initial setup
+
+    def _on_chart_type_selected(self, event=None):
+        selected_type = self.combo_chart_type.get()
+        self._clear_chart_area()
+
+        self.filter_grade_dist_frame.pack_forget()
+        self.filter_gpa_trend_frame.pack_forget()
+        self.filter_student_dist_frame.pack_forget()
+
+        if selected_type == "Phân phối điểm môn học theo lớp":
+            self.filter_grade_dist_frame.pack(fill=tk.X, pady=5)
+        elif selected_type == "Xu hướng GPA của sinh viên":
+            self.filter_gpa_trend_frame.pack(fill=tk.X, pady=5)
+        elif selected_type == "Tỷ lệ sinh viên theo Khoa" or selected_type == "Tỷ lệ sinh viên theo Lớp":
+            self.filter_student_dist_frame.pack(fill=tk.X, pady=5)
+        self.update_status(f"Chọn loại biểu đồ: {selected_type}. Chọn bộ lọc và nhấn 'Vẽ Biểu đồ'.")
+
+    def _populate_chart_filters(self):
+        all_sv_dicts = self.ql_diem.lay_tat_ca_sinh_vien()
+        lop_values = sorted(list(set(sv['lop_hoc'] for sv in all_sv_dicts if sv.get('lop_hoc'))))
+        self.combo_chart_lop_hoc['values'] = lop_values
+        if lop_values: self.combo_chart_lop_hoc.current(0)
+
+        mon_hoc_list = self.ql_diem.lay_tat_ca_mon_hoc()
+        self.mon_hoc_display_to_code_map.update({f"{mh['ten_mh']} ({mh['ma_mh']})": mh['ma_mh'] for mh in mon_hoc_list})
+        mon_hoc_display_values = sorted(list(self.mon_hoc_display_to_code_map.keys()))
+        self.combo_chart_mon_hoc_dist['values'] = mon_hoc_display_values
+        if mon_hoc_display_values: self.combo_chart_mon_hoc_dist.current(0)
+
+        sv_display_list = sorted([f"{sv.ho_ten} ({sv.ma_sv})" for sv in self.ql_diem.danh_sach_sinh_vien.values()])
+        self.combo_chart_sv_gpa['values'] = sv_display_list
+        if sv_display_list: self.combo_chart_sv_gpa.current(0)
+
+    def _draw_selected_chart(self):
+        if not self._check_ui_permission_before_action("GENERATE_CHARTS", "tạo biểu đồ"): return
+        selected_type = self.combo_chart_type.get()
+        self._clear_chart_area()
+
+        self.chart_figure = Figure(figsize=(7, 4.5), dpi=100) # Khởi tạo Figure
+        plot_drawn = False
+        if selected_type == "Phân phối điểm môn học theo lớp":
+            plot_drawn = self._draw_grade_distribution_chart(self.chart_figure)
+        elif selected_type == "Xu hướng GPA của sinh viên":
+            plot_drawn = self._draw_gpa_trend_chart(self.chart_figure)
+        elif selected_type == "Tỷ lệ sinh viên theo Khoa":
+            plot_drawn = self._draw_student_distribution_chart(self.chart_figure, group_by='khoa')
+        elif selected_type == "Tỷ lệ sinh viên theo Lớp":
+            plot_drawn = self._draw_student_distribution_chart(self.chart_figure, group_by='lop_hoc')
+
+        if plot_drawn:
+            self.chart_canvas_widget = FigureCanvasTkAgg(self.chart_figure, master=self.chart_display_frame)
+            self.chart_canvas_widget.draw()
+            canvas_tk_widget = self.chart_canvas_widget.get_tk_widget()
+            canvas_tk_widget.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+            if self.chart_toolbar: self.chart_toolbar.destroy()
+            self.chart_toolbar = NavigationToolbar2Tk(self.chart_canvas_widget, self.chart_display_frame)
+            self.chart_toolbar.update()
+            # canvas_tk_widget.pack(side=tk.TOP, fill=tk.BOTH, expand=True) # Đã pack ở trên
+            self.update_status(f"Đã vẽ biểu đồ: {selected_type}")
+        else:
+            self.update_status("Không thể vẽ biểu đồ: Thiếu dữ liệu hoặc lựa chọn không hợp lệ.")
+
+    def _draw_grade_distribution_chart(self, fig):
+        lop_hoc = self.combo_chart_lop_hoc.get()
+        mon_hoc_display = self.combo_chart_mon_hoc_dist.get()
+        ma_mh = self.mon_hoc_display_to_code_map.get(mon_hoc_display)
+        if not lop_hoc or not ma_mh:
+            messagebox.showwarning("Thiếu thông tin", "Vui lòng chọn Lớp và Môn học.", parent=self.master)
+            return False
+        data = self.ql_diem.get_grade_distribution_data(lop_hoc, ma_mh)
+        if not any(data.values()):
+            messagebox.showinfo("Không có dữ liệu", f"Không có dữ liệu điểm cho môn '{mon_hoc_display}' trong lớp '{lop_hoc}'.", parent=self.master)
+            return False
+        labels = list(data.keys()); values = list(data.values())
+        ax = fig.add_subplot(111)
+        bars = ax.bar(labels, values, color=['#4CAF50', '#8BC34A', '#FFEB3B', '#FFC107', '#F44336'])
+        ax.set_ylabel('Số lượng Sinh viên'); ax.set_title(f'Phân phối điểm môn "{mon_hoc_display}"\nLớp: {lop_hoc}'); ax.set_xlabel('Xếp loại')
+        for bar in bars:
+            yval = bar.get_height()
+            if yval > 0: ax.text(bar.get_x() + bar.get_width()/2.0, yval + 0.05 * (max(values) if values else 1), int(yval), ha='center', va='bottom')
+        fig.tight_layout(); return True
+
+    def _draw_gpa_trend_chart(self, fig):
+        sv_display = self.combo_chart_sv_gpa.get()
+        if not sv_display: messagebox.showwarning("Thiếu thông tin", "Vui lòng chọn Sinh viên.", parent=self.master); return False
+        try: ma_sv = sv_display.split('(')[-1].replace(')', '').strip()
+        except: messagebox.showerror("Lỗi", "Lựa chọn sinh viên không hợp lệ.", parent=self.master); return False
+        data = self.ql_diem.get_student_gpa_trend_data(ma_sv)
+        if not data: messagebox.showinfo("Không có dữ liệu", f"Không có dữ liệu GPA cho SV: {sv_display}.", parent=self.master); return False
+        hoc_ky_labels = list(data.keys()); gpa_values = list(data.values())
+        ax = fig.add_subplot(111)
+        ax.plot(hoc_ky_labels, gpa_values, marker='o', linestyle='-', color='dodgerblue')
+        ax.set_ylabel('Điểm GPA (Hệ 10)'); ax.set_xlabel('Học kỳ'); ax.set_title(f'Xu hướng GPA của: {sv_display}'); ax.set_ylim(0, 10.5); ax.grid(True, linestyle=':', alpha=0.7)
+        for i, txt in enumerate(gpa_values): ax.annotate(f"{txt:.2f}", (hoc_ky_labels[i], gpa_values[i]), textcoords="offset points", xytext=(0,5), ha='center')
+        if len(hoc_ky_labels) > 4: fig.autofmt_xdate(rotation=30, ha='right')
+        fig.tight_layout(); return True
+
+    def _draw_student_distribution_chart(self, fig, group_by='khoa'):
+        data = self.ql_diem.get_student_distribution_by_faculty_or_class_data(group_by=group_by)
+        if not data: messagebox.showinfo("Không có dữ liệu", f"Không có dữ liệu phân phối SV theo {group_by}.", parent=self.master); return False
+        labels = [l for l,v in data.items() if v > 0]; values = [v for v in data.values() if v > 0] # Chỉ lấy mục có giá trị
+        if not values: messagebox.showinfo("Không có dữ liệu", f"Không có SV (số lượng > 0) để phân phối theo {group_by}.", parent=self.master); return False
+        ax = fig.add_subplot(111)
+        def my_autopct(pct):
+            total = sum(values); val = int(round(pct*total/100.0))
+            return f'{pct:.1f}%\n({val})' if pct > 1 else '' # Chỉ hiển thị % nếu đủ lớn
+        wedges, texts, autotexts = ax.pie(values, autopct=my_autopct, startangle=120, pctdistance=0.82,
+                                          colors=plt.cm.Paired(range(len(labels)))) # Dùng colormap
+        ax.axis('equal'); title_str = f"Tỷ lệ Sinh viên theo {group_by.replace('_',' ').title()}"
+        ax.set_title(title_str)
+        ax.legend(wedges, labels, title=f"{group_by.replace('_',' ').title()}", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1), fontsize='small')
+        fig.tight_layout(rect=[0, 0, 0.75, 1]); return True # Điều chỉnh rect cho legend
 
     def update_status(self, message):
         self.status_label.config(text=message)
@@ -2038,8 +2239,6 @@ class QuanLyDiemGUI:
 if __name__ == "__main__":
     if _MAIN_HAS_RUN:
         print("CRITICAL WARNING: Main execution block in app_gui.py is trying to run again. Preventing re-initialization.")
-        # In a bundled app, sys.exit() might be too abrupt if this is an expected re-entry for some reason by the bundler.
-        # However, for a typical Tkinter app, this indicates a problem.
     else:
         _MAIN_HAS_RUN = True
         root = None
