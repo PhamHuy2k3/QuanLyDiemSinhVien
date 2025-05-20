@@ -457,6 +457,7 @@ class QuanLyDiemGUI:
         self._populate_nhap_diem_sv_combobox()
         self._populate_xem_diem_filters()
         self._populate_nhap_diem_filters()
+        self._populate_bao_cao_lop_filter() # Thêm hàm populate cho combobox báo cáo lớp
         self._populate_hoc_ky_comboboxes_for_all_tabs() # Gọi sau khi các tab UI (bao gồm cả quick_grade_entry_tab_manager) đã được khởi tạo
 
 
@@ -553,6 +554,7 @@ class QuanLyDiemGUI:
             self.hien_thi_xep_hang() # Hiển thị bảng xếp hạng khi chuyển tab
             self.update_status(f"Chuyển đến tab: {SUB_TAB_RANKING}")
         elif selected_sub_tab_text == SUB_TAB_REPORT:
+            self._populate_bao_cao_lop_filter() # Cập nhật combobox lớp khi chuyển sang tab này
             self.update_status(f"Chuyển đến tab: {SUB_TAB_REPORT}")
             pass
     def on_sub_tab_admin_change(self, event):
@@ -681,7 +683,6 @@ class QuanLyDiemGUI:
         self.sub_notebook_admin.bind("<<NotebookTabChanged>>", self.on_sub_tab_admin_change)
     def setup_styles(self):
         style = ttk.Style(self.master)
-        # Tăng kích thước font một chút để dễ đọc hơn
         default_font = ('Segoe UI', 11)
         heading_font = ('Segoe UI', 12, 'bold')
         label_font = ('Segoe UI', 11)
@@ -707,11 +708,6 @@ class QuanLyDiemGUI:
         # Style cho Treeview có đường kẻ
         style.configure("Grid.Treeview", rowheight=28, font=default_font) # Kế thừa từ Treeview gốc
         style.map("Grid.Treeview", background=[('selected', '#0078D7')], foreground=[('selected', 'white')]) # Màu khi chọn
-
-        # Style cho các hàng xen kẽ để tạo hiệu ứng đường kẻ
-        # Màu nền nhạt cho hàng chẵn, bạn có thể chọn màu khác
-        # Việc cấu hình màu cho tag 'oddrow' và 'evenrow' sẽ được thực hiện trong QuickGradeEntryTab
-        # style.configure("Grid.Treeview.Treeitem", indicatorrelief=tk.FLAT, indicatormargin=-15) # Cấu hình chung cho item (có thể giữ lại nếu cần)
     
     # ... (setup_them_sv_tab, _handle_add_student_submit, _populate_them_sv_comboboxes giữ nguyên) ...
     def setup_list_students_tab(self, parent_frame):
@@ -862,11 +858,6 @@ class QuanLyDiemGUI:
             self._populate_student_filters_and_treeview() # Làm mới treeview và bộ lọc
             self._populate_student_form_comboboxes() # Làm mới combobox trong form
         else:
-        # Kiểm tra nếu lỗi là do không có quyền (ví dụ từ backend)
-        # if "không có quyền" in message.lower():
-        #     # Có thể không cần hiển thị messagebox ở đây nếu nút đã bị disable
-        #     # nhưng nếu logic backend được gọi trực tiếp thì cần
-        #     pass
             messagebox.showerror("Lỗi", message)
             self.update_status(f"Thêm thất bại: {message}")
 
@@ -1141,15 +1132,10 @@ class QuanLyDiemGUI:
     def setup_nhap_diem_tab(self, parent_frame):
         # Hàm xử lý sự kiện cuộn chuột
         def _on_mousewheel(event, canvas_widget):
-            # Điều chỉnh tốc độ cuộn nếu cần
-            # Đối với Windows và Linux (event.delta thường là +/-120)
-            # Đối với macOS (event.delta thường là +/-1 đến +/-3, tùy thuộc vào cài đặt)
-            # Cần kiểm tra platform để điều chỉnh cho phù hợp nếu event.delta quá nhỏ trên macOS
-            scroll_speed_factor = -1 if event.num == 4 else 1 # For Linux mouse buttons 4 & 5
+            scroll_speed_factor = -1 if event.num == 4 else 1
             if event.delta: scroll_speed_factor = int(-1 * (event.delta / 120)) if abs(event.delta) >= 120 else int(-1 * event.delta)
             canvas_widget.yview_scroll(scroll_speed_factor, "units")
-
-        # Tạo một Canvas để chứa nội dung có thể cuộn
+            
         canvas = tk.Canvas(parent_frame)
         canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
@@ -1558,12 +1544,6 @@ class QuanLyDiemGUI:
         
         selected_iid = selected_items[0] 
         try:
-            # iid là: f"{sv.ma_sv}_{hoc_ky}_{ma_mh}"
-            # Cần đảm bảo rằng ma_sv, hoc_ky không chứa '_'
-            # Hoặc sử dụng một separator khác nếu có thể.
-            # Giả sử ma_sv (9 chữ số) và hoc_ky không chứa '_'.
-            # Ví dụ: "22520001_HK1-2022_IT001"
-            # Tìm vị trí của dấu '_' đầu tiên và thứ hai
             first_underscore = selected_iid.find('_')
             second_underscore = selected_iid.find('_', first_underscore + 1)
 
@@ -1764,7 +1744,7 @@ class QuanLyDiemGUI:
         else:
             messagebox.showinfo("Thông báo", f"Không tìm thấy kết quả nào cho: {keyword_display}.")
             self.update_status(f"Không tìm thấy kết quả cho: {keyword_display}.")
-
+#Xếp hạng tab
     def setup_xep_hang_tab(self, parent_frame):
         filter_frame_xh = ttk.Frame(parent_frame)
         filter_frame_xh.pack(pady=(10,5), padx=10, fill=tk.X)
@@ -1803,8 +1783,8 @@ class QuanLyDiemGUI:
         for col in cols_xh: self.tree_xep_hang.heading(col, text=col)
         self.tree_xep_hang.column("Hạng", width=50, anchor=tk.CENTER, stretch=tk.NO); self.tree_xep_hang.column("Mã SV", width=100, stretch=tk.NO)
         self.tree_xep_hang.column("Họ Tên", width=180, stretch=tk.YES); self.tree_xep_hang.column("Lớp", width=80, stretch=tk.NO)
-        self.tree_xep_hang.column("Trường", width=100, stretch=tk.NO); self.tree_xep_hang.column("Khoa", width=100, stretch=tk.NO)
-        self.tree_xep_hang.column("HK Xếp Hạng", width=100, anchor=tk.W, stretch=tk.NO) 
+        self.tree_xep_hang.column("Trường", width=100, anchor=tk.CENTER, stretch=tk.NO); self.tree_xep_hang.column("Khoa", width=100, anchor=tk.CENTER, stretch=tk.NO) # Đã căn giữa từ trước
+        self.tree_xep_hang.column("HK Xếp Hạng", width=100, anchor=tk.CENTER, stretch=tk.NO) # Căn giữa cột HK Xếp Hạng
         self.tree_xep_hang.column("GPA", width=70, anchor=tk.CENTER, stretch=tk.NO)
         
         scrollbar_xh_y = ttk.Scrollbar(frame_xh_results, orient=tk.VERTICAL, command=self.tree_xep_hang.yview)
@@ -1907,16 +1887,13 @@ class QuanLyDiemGUI:
                 self.tree_manage_students.insert('', tk.END, values=(
                     sv.get('ma_sv'), sv.get('ho_ten'), sv.get('lop_hoc'), 
                     sv.get('khoa'), sv.get('truong'), sv.get('hoc_ky_nhap_hoc')))
-    # SỬA LỖI: Implement hien_thi_danh_sach_mon_hoc
+#Danh sách môn học
     def hien_thi_danh_sach_mon_hoc(self):
         if not hasattr(self, 'tree_ql_mon_hoc'):
             return
 
         for item in self.tree_ql_mon_hoc.get_children():
             self.tree_ql_mon_hoc.delete(item)
-
-        # Giả sử ql_diem.lay_tat_ca_mon_hoc() trả về list các dict
-        # [{'ma_mh': '...', 'ten_mh': '...', 'so_tin_chi': ...}, ...]
         mon_hoc_list_for_tree = sorted(self.ql_diem.lay_tat_ca_mon_hoc(), key=lambda x: x['ma_mh'])
 
         if not mon_hoc_list_for_tree:
@@ -1938,15 +1915,15 @@ class QuanLyDiemGUI:
     def setup_bao_cao_tab(self, parent_frame):
         frame_input = ttk.Frame(parent_frame)
         frame_input.pack(pady=10, padx=10, fill=tk.X)
-        ttk.Label(frame_input, text="Nhập tên lớp:").pack(side=tk.LEFT, padx=(0,5))
-        self.entry_lop_hoc_bao_cao = ttk.Entry(frame_input, width=25) # Giảm width một chút
-        self.entry_lop_hoc_bao_cao.pack(side=tk.LEFT, padx=5)
-        btn_xuat_bao_cao = ttk.Button(frame_input, text="Hiển thị Báo cáo", command=self.hien_thi_bao_cao, style="Accent.TButton", width=18)
+        ttk.Label(frame_input, text="Chọn Lớp:").pack(side=tk.LEFT, padx=(0,5)) # Đổi text
+        self.combo_lop_hoc_bao_cao = ttk.Combobox(frame_input, width=23, state="readonly") # Thay Entry bằng Combobox
+        self.combo_lop_hoc_bao_cao.pack(side=tk.LEFT, padx=5)
+        btn_xuat_bao_cao = ttk.Button(frame_input, text="Hiển thị Báo cáo", command=self.hien_thi_bao_cao, style="Accent.TButton", width=18) # Giữ nguyên command
         btn_xuat_bao_cao.pack(side=tk.LEFT, padx=5)
         btn_luu_bao_cao = ttk.Button(frame_input, text="Lưu Báo cáo (File)", command=self._handle_luu_bao_cao, width=18)
         btn_luu_bao_cao.pack(side=tk.LEFT, padx=10)
         frame_output = ttk.LabelFrame(parent_frame, text="Kết quả Báo cáo")
-        frame_output.pack(pady=(5,10), padx=10, fill="both", expand=True) # Giảm pady trên
+        frame_output.pack(pady=(5,10), padx=10, fill="both", expand=True) 
         self.text_bao_cao = tk.Text(frame_output, wrap=tk.WORD, height=15, font=("Consolas", 10), relief=tk.FLAT, borderwidth=1) 
         self.text_bao_cao.grid(row=0, column=0, sticky="nsew")
         self.text_bao_cao.config(state=tk.DISABLED)
@@ -1954,10 +1931,27 @@ class QuanLyDiemGUI:
         scrollbar_bao_cao.grid(row=0, column=1, sticky="ns")
         self.text_bao_cao.configure(yscrollcommand=scrollbar_bao_cao.set)
         frame_output.grid_rowconfigure(0, weight=1); frame_output.grid_columnconfigure(0, weight=1)
+        self._populate_bao_cao_lop_filter() # Gọi để điền dữ liệu ban đầu
 
+    def _populate_bao_cao_lop_filter(self):
+        """Điền dữ liệu vào combobox chọn lớp cho tab Báo cáo."""
+        if not hasattr(self, 'combo_lop_hoc_bao_cao'):
+            return
+
+        all_sv_objs = self.ql_diem.lay_tat_ca_sinh_vien() # List of dicts
+        lop_values = sorted(list(set(sv['lop_hoc'] for sv in all_sv_objs if sv.get('lop_hoc'))))
+
+        current_val = self.combo_lop_hoc_bao_cao.get()
+        self.combo_lop_hoc_bao_cao['values'] = lop_values # Không cần "Tất cả" ở đây
+        if current_val in lop_values:
+            self.combo_lop_hoc_bao_cao.set(current_val)
+        elif lop_values: # Nếu có lớp, chọn lớp đầu tiên làm mặc định
+            self.combo_lop_hoc_bao_cao.set(lop_values[0])
+        else: # Nếu không có lớp nào
+            self.combo_lop_hoc_bao_cao.set("")
 
     def hien_thi_bao_cao(self):
-        lop_hoc = self.entry_lop_hoc_bao_cao.get().strip()
+        lop_hoc = self.combo_lop_hoc_bao_cao.get().strip() # Lấy từ combobox
         if not lop_hoc: 
             messagebox.showwarning("Cảnh báo", "Vui lòng nhập tên lớp để xuất báo cáo.", parent=self.master)
             self.update_status("Cần nhập tên lớp cho báo cáo.")
@@ -2017,7 +2011,7 @@ class QuanLyDiemGUI:
             self.update_status("Lưu báo cáo thất bại: Nội dung không hợp lệ.")
             return
 
-        lop_hoc_bc = self.entry_lop_hoc_bao_cao.get().strip()
+        lop_hoc_bc = self.combo_lop_hoc_bao_cao.get().strip() # Lấy từ combobox
         default_filename = f"BaoCao_Lop_{lop_hoc_bc.replace(' ', '_')}.txt" if lop_hoc_bc else "BaoCaoLop.txt"
         
         filepath = filedialog.asksaveasfilename(

@@ -14,9 +14,5 @@
     "giaovien": {
         "password_hash": "57a22152786b2bef1d047b6159081385:522fd25554b86b23d90065a86d322e8a1757e4fb7e15404bac2be4d4e13f1251",
         "role": "Teacher"
-    },
-    "Bui Minh Nhut": {
-        "password_hash": "869f49ad7188b32bcb4523e732db3fd8:af69d556cf23e0ae4da6d22e33cf5b3447182ad44ec2a88cf31c3deaba34a128",
-        "role": "Student"
     }
 }
