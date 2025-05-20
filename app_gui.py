@@ -49,7 +49,7 @@ class QuanLyDiemGUI:
                 "sub_notebook_attr": "sub_notebook_data",
                 "sub_tab_text": SUB_TAB_MANAGE_SUBJECTS
             },
-             SUB_TAB_USER_MANAGEMENT: { # Thêm vào map điều hướng
+            SUB_TAB_USER_MANAGEMENT: { # Thêm vào map điều hướng
                 "main_tab_text": MAIN_TAB_ADMIN,
                 "sub_notebook_attr": "sub_notebook_admin",
                 "sub_tab_text": SUB_TAB_USER_MANAGEMENT
